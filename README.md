@@ -21,16 +21,18 @@ Every run is traced end-to-end in [neatlogs](https://neatlogs.com).
 ## Stack
 
 - TypeScript / Node.js 20+
-- Anthropic SDK (agent loop + tool use), traced via the neatlogs TypeScript SDK
-- [Entire](https://entire.io) for build checkpoints and the `entire-graph` runtime code graph
+- Google Gemini (`@google/genai`, `gemini-2.5-flash`) for the agent's own LLM calls + tool use, traced via the neatlogs TypeScript SDK (`wrapGoogleGenAI`)
+- [Entire](https://entire.io) for build checkpoints, the `entire-graph` runtime code graph (locate), and `entire graph verify` (adjudicated pass/fail verdicts)
 - [cfo.ai](https://cfo.ai) for the business plan (see `evidence/`)
 
 ## Quickstart
 
 ```bash
 npm install
-cp .env.example .env   # fill in ANTHROPIC_API_KEY, NEATLOGS_API_KEY, GITHUB_TOKEN
+cp .env.example .env   # fill in GOOGLE_API_KEY, NEATLOGS_API_KEY, GITHUB_TOKEN
 npm run dev -- run --repo <path-to-repo> --test "npm test"
+# or, to try it against a seeded bench case:
+npm run dev -- run --case stringkit/easy-capitalize
 ```
 
 ## Project layout

@@ -7,26 +7,11 @@
  * Usage: tsx bench/run-bench.ts
  */
 import { execSync } from "node:child_process";
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, symlinkSync } from "node:fs";
-import { cp } from "node:fs/promises";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { CASES_DIR, ROOT, type CaseMeta, materializeCase } from "./lib/prepare.js";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ROOT = path.resolve(__dirname, "..");
-const REPOS_DIR = path.join(__dirname, "repos");
-const CASES_DIR = path.join(__dirname, "cases");
 const WORK_DIR = path.join(ROOT, "runs", "bench-verify");
-
-interface CaseMeta {
-  id: string;
-  project: string;
-  difficulty: string;
-  description: string;
-  expected_failing_tests?: string[];
-  expected_failing_test_names?: string[];
-  expected_failure_mode?: string;
-}
 
 interface CaseResult {
   id: string;
@@ -49,26 +34,6 @@ function findCases(): { project: string; id: string; dir: string }[] {
     }
   }
   return out;
-}
-
-async function prepareWorkingCopy(project: string, caseId: string): Promise<string> {
-  const dest = path.join(WORK_DIR, project, caseId);
-  rmSync(dest, { recursive: true, force: true });
-  mkdirSync(dest, { recursive: true });
-  const golden = path.join(REPOS_DIR, project);
-  await cp(golden, dest, {
-    recursive: true,
-    filter: (src) => !src.includes(`${path.sep}node_modules${path.sep}`) && !src.endsWith(`${path.sep}node_modules`),
-  });
-  const goldenNodeModules = path.join(golden, "node_modules");
-  if (existsSync(goldenNodeModules)) {
-    symlinkSync(goldenNodeModules, path.join(dest, "node_modules"));
-  }
-  return dest;
-}
-
-function applyPatch(dir: string, patchFile: string): void {
-  execSync(`patch -p0 < ${JSON.stringify(patchFile)}`, { cwd: dir, stdio: "pipe" });
 }
 
 function runTests(dir: string): { stdout: string; ok: boolean; elapsedMs: number } {
@@ -98,8 +63,7 @@ function extractFailingTestFiles(vitestOutput: string): Set<string> {
 
 async function runCase(c: { project: string; id: string; dir: string }): Promise<CaseResult> {
   const meta: CaseMeta = JSON.parse(readFileSync(path.join(c.dir, "meta.json"), "utf8"));
-  const workDir = await prepareWorkingCopy(c.project, c.id);
-  applyPatch(workDir, path.join(c.dir, "bug.patch"));
+  const workDir = await materializeCase(c.project, c.id, path.join(WORK_DIR, c.project, c.id));
   const { stdout, elapsedMs } = runTests(workDir);
 
   const actualFailingFiles = extractFailingTestFiles(stdout);

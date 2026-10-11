@@ -12,7 +12,7 @@
 
 ## Stack
 
-- TypeScript / Node.js 20+, Anthropic SDK
+- TypeScript / Node.js 20+, Google Gemini (`@google/genai`, `gemini-3.8-flash`) for the agent's own LLM calls
 - neatlogs (tracing) — TS SDK
 - Entire (build checkpoints) + entire-graph (runtime code graph)
 - cfo.ai (business plan)
@@ -50,7 +50,19 @@
 - Wrote `bench/README.md` documenting the layout, patch format/apply convention (`patch -p0`), and how to add a case.
 - Noted deviation from the original case list in the build brief: case descriptions/exact bugs were adjusted from the initial plan where the first attempt didn't reproduce the intended failure (e.g. `compare.ts`'s array-handling had to be simplified so the `hard-shared-isplainobject` bug could actually manifest through the shared helper) — every case in this log reflects what was actually verified to fail, not the original plan.
 
-**Planned next:** M2 — agent v1 end-to-end (reproduce → locate → patch → verify → commit loop, traced in neatlogs) against one easy case locally.
+### 2026-10-11 — M2: Agent v1 end-to-end
+- **Model switch (deliberate, user-requested):** moved from Anthropic Claude to Google Gemini (`@google/genai`, model `gemini-3.8-flash` -- the API itself told us `gemini-2.5-flash` is retired and to use `gemini-3.8-flash`) for the agent's own LLM calls, to run on Gemini's free tier for the hackathon. Traced via `neatlogs/google-genai`'s `wrapGoogleGenAI`. Verified both the SDK's actual exports and the live API's model-availability error rather than assuming either.
+- Built the tool-calling agent loop (`src/agent/loop.ts`) with 7 tools (`graph_search`, `graph_explain`, `read_file`, `apply_edit`, `run_tests`, `revert_last_edit`, `finish`), a system prompt enforcing the reproduce→locate→patch→verify cycle and the no-cheating rule, and per-run cost/attempt budget tracking (`src/agent/state.ts`, persisted to `runs/<id>/state.json` after every step).
+- **Upgraded LOCATE and VERIFY to real Entire-graph commands** (stronger than the original plan): `entire graph search` for locating fix sites (ranked, with file:line + source), and `entire graph verify --record-baseline` / `--pre-edit-baseline` for an adjudicated PASS/REGRESSION/NO-EFFECT verdict against a pre-edit baseline, instead of hand-parsing test runner output.
+- Anti-cheat guardrail (`src/verify.ts`, pulled forward from M3): rejects a claimed fix if the diff skips/deletes tests. A claimed "fixed" is NEVER trusted directly -- it's always re-verified with `entire graph verify` + the diff check before a commit is made.
+- **Two real bugs found and fixed while getting this working (both are real recovery/debugging evidence, not staged):**
+  1. vitest's default reporter embeds a nondeterministic duration ("1ms" vs "0ms") in each failing test's name and only names passing tests at file granularity -- this broke `entire graph verify`'s baseline diff (a 100%-unchanged tree was misreported as "4 REGRESSIONS" because the timing suffix differed between the baseline run and the re-run). Fixed by forcing `--reporter=verbose` onto the test command (detected via the target repo's own `package.json` script, since `testCmd` is usually just `"npm test"` and doesn't literally say "vitest").
+  2. **Command injection**: `gitCommitAll` built the `git commit -m "..."` command via `execSync` on an interpolated string. The LLM's own commit-message summary contained markdown backticks (e.g. `` `src/capitalize.ts` ``), and `/bin/sh` executes backtick-quoted text as command substitution even inside double quotes -- the shell genuinely tried to run `src/capitalize.ts` and `capitalize` as commands on the first real run. Fixed by switching all of `src/tools/git.ts` to `execFileSync` with argument arrays (no shell involved, so no interpolation risk) instead of `execSync` with a built string.
+  3. Added exponential backoff (`src/agent/loop.ts`) after hitting a real transient `503 UNAVAILABLE` from the Gemini API during testing.
+- **Ran it end-to-end against `stringkit/easy-capitalize`:** graph_search found the bug (score 21.4 vs 9.4 for the next candidate) → read_file → apply_edit → run_tests → `entire graph verify` returned PASS (4 newly passing, 0 regressions) → committed. Full suite re-verified independently afterward: 36/36 passing. Cost: ~$0.014 (gemini-3.8-flash paid-tier equivalent; actual run was on the free tier). 5 attempts used of a 6-attempt budget.
+- Added `--case <project>/<id>` convenience flag to the CLI (materializes a bench case into `runs/<run-id>/workspace` via the shared `bench/lib/prepare.ts` helper, extracted from `run-bench.ts` so both share one tested code path).
+
+**Planned next:** M3 — formalize the recovery handlers already touched above (apply_edit-not-found retry, timeout handling, budget exhaustion -> draft report) and resume-from-state.json. Then M4 — run the full 10-case benchmark through the agent and record the "before" numbers.
 
 ## Demo
 
