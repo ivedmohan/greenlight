@@ -1,0 +1,19 @@
+{
+  "id": "hard-shared-isplainobject",
+  "project": "stringkit",
+  "difficulty": "hard",
+  "description": "isPlainObject() in src/internal/normalize.ts drops its prototype/array checks, so arrays are treated as plain objects. This is a single root cause shared by two unrelated call sites (deepEqual in compare.ts and merge in merge.ts), breaking both test files at once. A correct fix restores the array/prototype exclusion in isPlainObject itself -- patching only one call site (e.g. adding an Array.isArray check inside deepEqual) would fix compare.test.ts but leave merge.test.ts broken.",
+  "expected_failing_tests": ["test/compare.test.ts", "test/merge.test.ts"],
+  "expected_failing_test_names": [
+    "deepEqual > treats an array and a plain object with matching numeric keys as NOT equal",
+    "merge > rejects arrays as inputs"
+  ],
+  "expected_passing_test_files": [
+    "test/capitalize.test.ts",
+    "test/slugify.test.ts",
+    "test/truncate.test.ts",
+    "test/numbers.test.ts",
+    "test/arrays.test.ts",
+    "test/retry.test.ts"
+  ]
+}

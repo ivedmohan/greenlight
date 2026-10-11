@@ -1,0 +1,8 @@
+--- src/capitalize.ts	2026-10-11 21:45:18
++++ src/capitalize.ts	2026-10-11 21:48:05
+@@ -1,4 +1,4 @@
+ export function capitalize(s: string): string {
+   if (s.length === 0) return s;
+-  return s.charAt(0).toUpperCase() + s.slice(1);
++  return s.charAt(0).toUpperCase() + s.slice(0);
+ }

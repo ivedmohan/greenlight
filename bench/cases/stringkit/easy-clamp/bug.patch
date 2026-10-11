@@ -1,0 +1,11 @@
+--- src/numbers.ts	2026-10-11 21:45:25
++++ src/numbers.ts	2026-10-11 21:48:40
+@@ -3,5 +3,7 @@
+ }
+ 
+ export function clamp(n: number, min: number, max: number): number {
+-  return Math.min(Math.max(n, min), max);
++  if (n < min) return min;
++  if (n >= max) return max - 1;
++  return n;
+ }

@@ -1,0 +1,11 @@
+--- src/internal/normalize.ts	2026-10-11 21:45:16
++++ src/internal/normalize.ts	2026-10-11 21:49:11
+@@ -2,7 +2,7 @@
+   return s
+     .toLowerCase()
+     .trim()
+-    .replace(/[^a-z0-9]+/g, "-")
++    .replace(/[^a-z]+/g, "-")
+     .replace(/^-+|-+$/g, "");
+ }
+ 

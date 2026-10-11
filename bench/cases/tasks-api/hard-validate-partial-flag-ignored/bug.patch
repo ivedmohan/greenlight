@@ -1,0 +1,13 @@
+--- src/validate.ts	2026-10-11 21:47:09
++++ src/validate.ts	2026-10-11 21:52:12
+@@ -12,9 +12,7 @@
+   const titleProvided = input.title !== undefined;
+ 
+   if (!titleProvided) {
+-    if (!opts.partial) {
+-      errors.push("title is required");
+-    }
++    errors.push("title is required");
+   } else {
+     if (typeof input.title !== "string") {
+       errors.push("title must be a string");

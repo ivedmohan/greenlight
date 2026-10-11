@@ -1,0 +1,18 @@
+{
+  "id": "flaky-retry-backoff-explosion",
+  "project": "stringkit",
+  "difficulty": "flaky",
+  "description": "The backoff delay formula uses baseDelayMs ** (attemptIndex + 3) instead of baseDelayMs * 2 ** attemptIndex, so delays explode even for small baseDelayMs. All three retry tests genuinely time out rather than failing an assertion -- this case exercises the agent's timeout-recovery path (retry with a longer timeout / isolate to the failing test file) rather than a normal patch-and-verify loop.",
+  "expected_failing_tests": ["test/retry.test.ts"],
+  "expected_failure_mode": "timeout",
+  "note": "Verified with `vitest run test/retry.test.ts --testTimeout=3000`; all 3 tests time out at 3000ms. Default vitest test timeout (5000ms) will also be exceeded.",
+  "expected_passing_test_files": [
+    "test/capitalize.test.ts",
+    "test/slugify.test.ts",
+    "test/truncate.test.ts",
+    "test/numbers.test.ts",
+    "test/arrays.test.ts",
+    "test/compare.test.ts",
+    "test/merge.test.ts"
+  ]
+}

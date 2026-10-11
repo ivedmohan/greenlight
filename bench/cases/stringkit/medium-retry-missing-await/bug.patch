@@ -1,0 +1,11 @@
+--- src/retry.ts	2026-10-11 21:45:41
++++ src/retry.ts	2026-10-11 21:49:30
+@@ -6,7 +6,7 @@
+   let lastError: unknown;
+   for (let attemptIndex = 0; attemptIndex < attempts; attemptIndex++) {
+     try {
+-      return await fn();
++      return fn();
+     } catch (err) {
+       lastError = err;
+       if (attemptIndex < attempts - 1) {

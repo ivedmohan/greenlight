@@ -1,0 +1,9 @@
+--- src/numbers.ts	2026-10-11 21:45:25
++++ src/numbers.ts	2026-10-11 21:48:55
+@@ -1,5 +1,5 @@
+ export function sum(nums: number[]): number {
+-  return nums.reduce((acc, n) => acc + n, 0);
++  return nums.reduce((acc, n) => acc + n, 1);
+ }
+ 
+ export function clamp(n: number, min: number, max: number): number {

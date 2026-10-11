@@ -1,0 +1,12 @@
+--- src/internal/normalize.ts	2026-10-11 21:45:16
++++ src/internal/normalize.ts	2026-10-11 21:50:28
+@@ -7,8 +7,5 @@
+ }
+ 
+ export function isPlainObject(v: unknown): boolean {
+-  if (typeof v !== "object" || v === null) return false;
+-  if (Array.isArray(v)) return false;
+-  const proto = Object.getPrototypeOf(v);
+-  return proto === Object.prototype || proto === null;
++  return typeof v === "object" && v !== null;
+ }

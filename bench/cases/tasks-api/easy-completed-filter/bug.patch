@@ -1,0 +1,12 @@
+--- src/routes.ts	2026-10-11 21:47:15
++++ src/routes.ts	2026-10-11 21:52:37
+@@ -9,8 +9,7 @@
+   if (completed === undefined) {
+     return res.json(listTasks());
+   }
+-  const completedBool = completed === "true";
+-  res.json(listTasks({ completed: completedBool }));
++  res.json(listTasks({ completed: completed as any }));
+ });
+ 
+ router.post("/", (req: Request, res: Response) => {

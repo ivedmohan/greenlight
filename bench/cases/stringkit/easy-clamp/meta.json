@@ -1,0 +1,20 @@
+{
+  "id": "easy-clamp",
+  "project": "stringkit",
+  "difficulty": "easy",
+  "description": "clamp() uses an off-by-one at the max boundary (n >= max returns max - 1), breaking the 'clamps to max' and 'max boundary' cases while sum() and the rest of clamp() are unaffected.",
+  "expected_failing_tests": ["test/numbers.test.ts"],
+  "expected_failing_test_names": [
+    "clamp > clamps to max",
+    "clamp > handles the max boundary exactly"
+  ],
+  "expected_passing_test_files": [
+    "test/capitalize.test.ts",
+    "test/slugify.test.ts",
+    "test/truncate.test.ts",
+    "test/arrays.test.ts",
+    "test/compare.test.ts",
+    "test/merge.test.ts",
+    "test/retry.test.ts"
+  ]
+}

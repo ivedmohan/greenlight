@@ -1,0 +1,17 @@
+{
+  "id": "medium-slugify-shared-helper",
+  "project": "stringkit",
+  "difficulty": "medium",
+  "description": "The bug is in src/internal/normalize.ts's normalizeForSlug (its regex strips digits), NOT in src/slugify.ts. The agent must locate the real root cause in a different file than the one the failing test file name suggests.",
+  "expected_failing_tests": ["test/slugify.test.ts"],
+  "expected_failing_test_names": ["slugify > preserves digits"],
+  "expected_passing_test_files": [
+    "test/capitalize.test.ts",
+    "test/truncate.test.ts",
+    "test/numbers.test.ts",
+    "test/arrays.test.ts",
+    "test/compare.test.ts",
+    "test/merge.test.ts",
+    "test/retry.test.ts"
+  ]
+}

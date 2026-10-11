@@ -1,0 +1,11 @@
+--- src/retry.ts	2026-10-11 21:45:41
++++ src/retry.ts	2026-10-11 21:50:53
+@@ -10,7 +10,7 @@
+     } catch (err) {
+       lastError = err;
+       if (attemptIndex < attempts - 1) {
+-        const delay = baseDelayMs * 2 ** attemptIndex;
++        const delay = baseDelayMs ** (attemptIndex + 3);
+         await new Promise((resolve) => setTimeout(resolve, delay));
+       }
+     }

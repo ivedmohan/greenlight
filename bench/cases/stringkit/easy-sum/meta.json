@@ -1,0 +1,21 @@
+{
+  "id": "easy-sum",
+  "project": "stringkit",
+  "difficulty": "easy",
+  "description": "sum() starts its reduce accumulator at 1 instead of 0.",
+  "expected_failing_tests": ["test/numbers.test.ts"],
+  "expected_failing_test_names": [
+    "sum > sums an array of numbers",
+    "sum > returns 0 for an empty array",
+    "sum > handles negative numbers"
+  ],
+  "expected_passing_test_files": [
+    "test/capitalize.test.ts",
+    "test/slugify.test.ts",
+    "test/truncate.test.ts",
+    "test/arrays.test.ts",
+    "test/compare.test.ts",
+    "test/merge.test.ts",
+    "test/retry.test.ts"
+  ]
+}

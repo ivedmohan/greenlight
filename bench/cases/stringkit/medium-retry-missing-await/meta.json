@@ -1,0 +1,20 @@
+{
+  "id": "medium-retry-missing-await",
+  "project": "stringkit",
+  "difficulty": "medium",
+  "description": "retryWithBackoff does 'return fn()' instead of 'return await fn()' inside the try block, so a rejected promise from fn() isn't caught by the surrounding catch, and no retry happens.",
+  "expected_failing_tests": ["test/retry.test.ts"],
+  "expected_failing_test_names": [
+    "retryWithBackoff > resolves once the function eventually succeeds",
+    "retryWithBackoff > completes quickly for small base delays (no runaway backoff)"
+  ],
+  "expected_passing_test_files": [
+    "test/capitalize.test.ts",
+    "test/slugify.test.ts",
+    "test/truncate.test.ts",
+    "test/numbers.test.ts",
+    "test/arrays.test.ts",
+    "test/compare.test.ts",
+    "test/merge.test.ts"
+  ]
+}

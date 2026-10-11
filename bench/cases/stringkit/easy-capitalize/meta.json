@@ -1,0 +1,16 @@
+{
+  "id": "easy-capitalize",
+  "project": "stringkit",
+  "difficulty": "easy",
+  "description": "capitalize() uses s.slice(0) instead of s.slice(1), duplicating the first character instead of dropping it.",
+  "expected_failing_tests": ["test/capitalize.test.ts"],
+  "expected_passing_test_files": [
+    "test/slugify.test.ts",
+    "test/truncate.test.ts",
+    "test/numbers.test.ts",
+    "test/arrays.test.ts",
+    "test/compare.test.ts",
+    "test/merge.test.ts",
+    "test/retry.test.ts"
+  ]
+}

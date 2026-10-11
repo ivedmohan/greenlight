@@ -1,0 +1,24 @@
+{
+  "id": "medium-update-store-bug",
+  "project": "tasks-api",
+  "difficulty": "medium",
+  "description": "updateTask() in src/store.ts builds a merged copy ({...task, ...patch}) and returns it instead of mutating and persisting the stored task. The PATCH route in src/routes.ts is correct; the bug is in a different file (the store). Because the update never actually persists, both the PATCH-response assertions and the completed-filter assertions (which depend on a prior PATCH having taken effect) fail from this single root cause.",
+  "expected_failing_tests": ["test/tasks.test.ts"],
+  "expected_failing_test_names": [
+    "GET /tasks > filters by completed=true",
+    "GET /tasks > filters by completed=false",
+    "PATCH /tasks/:id > updates only the provided fields, title omitted",
+    "PATCH /tasks/:id > persists the update so a subsequent GET reflects it"
+  ],
+  "expected_passing_test_names": [
+    "GET /tasks > returns an empty list initially",
+    "POST /tasks > creates a task with a valid title",
+    "POST /tasks > rejects an empty title",
+    "POST /tasks > rejects a whitespace-only title",
+    "POST /tasks > rejects a title over 100 characters",
+    "PATCH /tasks/:id > rejects an empty-string title on update",
+    "PATCH /tasks/:id > returns 404 for an unknown id",
+    "DELETE /tasks/:id > removes the task",
+    "DELETE /tasks/:id > returns 404 for an unknown id"
+  ]
+}

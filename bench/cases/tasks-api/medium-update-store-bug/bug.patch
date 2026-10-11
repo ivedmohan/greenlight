@@ -1,0 +1,14 @@
+--- src/store.ts	2026-10-11 21:47:05
++++ src/store.ts	2026-10-11 21:51:30
+@@ -32,9 +32,8 @@
+ export function updateTask(id: string, patch: Partial<Pick<Task, "title" | "completed">>): Task | undefined {
+   const task = tasks.find((t) => t.id === id);
+   if (!task) return undefined;
+-  if (patch.title !== undefined) task.title = patch.title;
+-  if (patch.completed !== undefined) task.completed = patch.completed;
+-  return task;
++  const updated: Task = { ...task, ...patch };
++  return updated;
+ }
+ 
+ export function deleteTask(id: string): boolean {
