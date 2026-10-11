@@ -1,0 +1,32 @@
+{
+  "name": "greenlight",
+  "version": "0.1.0",
+  "description": "Autonomous agent that fixes a failing test suite / red CI run and opens a PR.",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "greenlight": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx src/index.ts",
+    "run": "tsx src/index.ts run",
+    "bench": "tsx bench/run-bench.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.68.0",
+    "@octokit/rest": "^22.0.0",
+    "commander": "^14.0.0",
+    "dotenv": "^17.0.0",
+    "neatlogs": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
