@@ -1,0 +1,122 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4P284VQFFFDAA636PBEW8ZZ",
+  "session_id": "342b5573-3a40-461c-956a-972bd68e5254",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-11T18:05:25.02834Z",
+  "branch": "main",
+  "checkpoints_count": 7,
+  "save_step_count": 7,
+  "files_touched": [
+    "bench/run-agent-bench.ts",
+    "src/agent/loop.ts"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-sonnet-5",
+  "turn_id": "7b3fbc5efc00",
+  "checkpoint_transcript_start": 1725,
+  "transcript_lines_at_start": 1725,
+  "compact_transcript_start": 319,
+  "token_usage": {
+    "input_tokens": 120,
+    "cache_creation_tokens": 52219,
+    "cache_read_tokens": 24280368,
+    "output_tokens": 26357,
+    "api_call_count": 60
+  },
+  "session_metrics": {
+    "turn_count": 11
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-10-11T18:05:24.967071Z",
+    "agent_lines": 58,
+    "agent_removed": 11,
+    "human_added": 113,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 171,
+    "total_lines_changed": 183,
+    "agent_percentage": 37.704918032786885,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 1,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".claude/scheduled_tasks.lock": 1
+      }
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 1,
+      "user_lines_removed": 0,
+      "agent_lines_added": 58,
+      "agent_lines_removed": 11,
+      "user_added_per_file": {
+        ".claude/scheduled_tasks.lock": 1
+      }
+    },
+    {
+      "checkpoint_number": 4,
+      "user_lines_added": 1,
+      "user_lines_removed": 0,
+      "agent_lines_added": 58,
+      "agent_lines_removed": 11,
+      "user_added_per_file": {
+        ".claude/scheduled_tasks.lock": 1
+      }
+    },
+    {
+      "checkpoint_number": 5,
+      "user_lines_added": 1,
+      "user_lines_removed": 0,
+      "agent_lines_added": 58,
+      "agent_lines_removed": 11,
+      "user_added_per_file": {
+        ".claude/scheduled_tasks.lock": 1
+      }
+    },
+    {
+      "checkpoint_number": 6,
+      "user_lines_added": 1,
+      "user_lines_removed": 0,
+      "agent_lines_added": 58,
+      "agent_lines_removed": 11,
+      "user_added_per_file": {
+        ".claude/scheduled_tasks.lock": 1
+      }
+    },
+    {
+      "checkpoint_number": 7,
+      "user_lines_added": 1,
+      "user_lines_removed": 0,
+      "agent_lines_added": 58,
+      "agent_lines_removed": 11,
+      "user_added_per_file": {
+        ".claude/scheduled_tasks.lock": 1
+      }
+    },
+    {
+      "checkpoint_number": 8,
+      "user_lines_added": 114,
+      "user_lines_removed": 0,
+      "agent_lines_added": 58,
+      "agent_lines_removed": 11,
+      "user_added_per_file": {
+        ".claude/scheduled_tasks.lock": 1,
+        "evidence/agent-bench-v1.json": 113
+      }
+    }
+  ]
+}
