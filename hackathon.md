@@ -88,7 +88,31 @@
   - Saved to `evidence/agent-bench-v1.json`. Note: the live process crashed on the 10th case (finding #2 above) before writing its own JSON; the file was reconstructed from the actual captured terminal transcript of that run (same numbers, not re-run or guessed) once the crash was understood, and the 10th case is marked `blocked_by_quota` rather than omitted or faked.
 - **Relevant for the cfo.ai business plan (M7):** at $0.003-0.005/attempt, a real paid-tier run costs roughly $0.03-0.04 per resolved issue even at this small scale -- worth comparing against engineer time directly. The free-tier daily cap is also a real constraint on "run this unattended at scale" that a serious deployment would need a paid tier for.
 
-**Planned next:** M5 — diagnose the 3 non-fixed cases via neatlogs (why did retry-missing-await, hard-validate-partial-flag-ignored, and the flaky case fail?), improve the agent (prompts/tools/context) into v2, rerun the same 10 cases, and record the before/after comparison. Then M3's remaining formal recovery items (resume-from-state.json) if time allows -- most of M3's spirit (backoff, anti-cheat, budget handling) already landed opportunistically during M2/M4.
+### 2026-10-12 — M5: neatlogs MCP diagnosis, a real model-switch mid-benchmark, and a stronger v1
+- Connected the neatlogs MCP server (`.mcp.json`, env-var placeholder for the key -- never committed the literal key). Took two tries: Claude Code resolves `${NEATLOGS_API_KEY}` from the actual shell environment that launches it, not from `.env` automatically, so the first restart authenticated with an empty/invalid header (401) until the key was exported in the exact launching shell.
+- **Found and fixed a real gap while diagnosing**: `bench/run-agent-bench.ts` never called the neatlogs SDK's `init()`, so the entire 9-case v1 batch from M4 produced **zero actual traces** despite `loop.ts` calling `trace()`/`span()` throughout -- those are no-ops without an initialized SDK. Added `initTracing`/`shutdownTracing` around the batch (once per process, not per case, per the SDK's own guidance for scripts).
+- Re-ran the full 10-case benchmark to get a properly traced v1. Along the way, found that **Groq's 200,000 tokens/day cap is a single budget shared across the whole org, not a separate bucket per model** as the docs implied: both `gpt-oss-120b` (M4) and, independently, `qwen/qwen3.8-27b` (this run) hit the wall at almost the identical cumulative usage (~198.7-198.8k/200k) on the exact same 10th case. Confirmed by direct observation, not assumption.
+- Switched the agent's model to **`qwen/qwen3.8-27b`** (tested reliable, unlike `gpt-oss-20b` from M4) and it did noticeably better than `gpt-oss-120b`:
+
+  | case | v1 (gpt-oss-120b, M4) | v1 (qwen3.8-27b, M5, now with real traces) |
+  |---|---|---|
+  | easy-capitalize | fixed ✓ | fixed ✓ |
+  | easy-clamp | fixed ✓ | fixed ✓ |
+  | easy-sum | fixed ✓ | fixed ✓ |
+  | easy-completed-filter | fixed ✓ | fixed ✓ |
+  | medium-slugify-shared-helper | fixed ✓ | fixed ✓ |
+  | hard-shared-isplainobject | fixed ✓ | fixed ✓ |
+  | **medium-retry-missing-await** | budget_exceeded ✗ | **fixed ✓** |
+  | **hard-validate-partial-flag-ignored** | budget_exceeded ✗ | **fixed ✓** |
+  | flaky-retry-backoff-explosion | budget_exceeded ✗ | budget_exceeded ✗ (still) |
+  | medium-update-store-bug | not run (quota) | not run (quota, again, same wall) |
+
+  **8/9 attempted cases fixed and independently verified green** (up from 6/9). **Correction:** the per-case costs first quoted in chat (~$0.002-0.005) were computed with the wrong pricing constant (leftover from `gpt-oss-120b`, not yet updated for `qwen`) -- after pulling real `prompt_tokens`/`completion_tokens` per trace via `get_trace_context` and qwen's actual Groq pricing ($0.80/$4.00 per MTok), the real cost is **$0.011-0.026/case** (qwen costs more per token than gpt-oss-120b, ~5-7x). See `evidence/agent-bench-v1.json` for the corrected, trace-verified numbers -- this is the figure to use for the cfo.ai business plan, not the one quoted earlier in the session. The only case still failing is the genuine timeout/flaky one -- a real, consistent weak spot across both models, which is itself useful signal (the agent doesn't yet have a strategy specific to "the test timed out" vs. "the assertion failed").
+  - `evidence/agent-bench-v1.json` updated with real `trace_id`s for 8 of the 9 attempted cases (the flaky case's trace wasn't found via `search_traces` -- an indexing gap, not a missing run; its result is from the real captured terminal output).
+- **Pulled a full trace via `get_trace_context`** for `hard-shared-isplainobject` as a concrete "recovers from failures" example: the agent's first move was `read_file({"path":"src/objects.ts"})` -- a wrong guess -- which failed with `ENOENT`. The error was surfaced back to the model as a tool result, and its very next action was `read_file({"path":"src/internal/normalize.ts"})`, the correct file, leading to the fix. This is genuine, undirected recovery (not scripted), and neatlogs' own automatic detections tagged this trace `Execution Failed` + `Slow LLM Response` without any detection rules configured by us. Trace: `273a0a6d6872099b4b84a809031a7241`.
+- `mcp__neatlogs__triage_list` currently returns no cards (no issues auto-surfaced yet at this volume) -- noted, not a problem.
+
+**Planned next:** Given today's remaining Groq quota is uncertain (shared org-wide cap, last seen near its limit), spend further LLM calls carefully. Priorities for the rest of the day before the 7-11:55 PM IST submission window: write `evidence/unit-economics.md` from the real numbers above (no LLM calls needed), attempt one targeted v2 prompt improvement for the flaky/timeout case specifically (cheap, single-case test), wire the real GitHub issue -> PR flow (M6) if quota allows, then evidence packaging + demo video (M7/M8).
 
 ## Demo
 

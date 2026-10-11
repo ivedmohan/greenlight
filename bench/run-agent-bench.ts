@@ -12,6 +12,7 @@ import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { CASES_DIR, ROOT, type CaseMeta, materializeCase } from "./lib/prepare.js";
 import { runAgent } from "../src/agent/loop.js";
+import { initTracing, shutdownTracing } from "../src/tracing.js";
 
 const WORK_DIR = path.join(ROOT, "runs", "agent-bench");
 const EVIDENCE_DIR = path.join(ROOT, "evidence");
@@ -60,8 +61,14 @@ async function main() {
   let cases = findCases().sort((a, b) => `${a.project}/${a.id}`.localeCompare(`${b.project}/${b.id}`));
   if (only) cases = cases.filter((c) => `${c.project}/${c.id}` === only);
 
+  // NOTE: this was missing in the v1 run -- loop.ts's trace()/span() calls
+  // are no-ops without an initialized SDK, so that whole batch produced
+  // zero neatlogs traces despite looking like it worked. Fixed for v2+.
+  await initTracing("greenlight-bench", [`label:${label}`]);
+
   const results: AgentCaseResult[] = [];
 
+  try {
   for (const c of cases) {
     const meta: CaseMeta = JSON.parse(readFileSync(path.join(c.dir, "meta.json"), "utf8"));
     const runId = `agentbench-${label}-${c.project}-${c.id}`;
@@ -130,6 +137,9 @@ async function main() {
   }
   console.log(`\n${fixed.length}/${results.length} cases fixed and independently verified green.`);
   console.log(`Results written to ${path.relative(ROOT, outPath)}`);
+  } finally {
+    await shutdownTracing();
+  }
 }
 
 main();
