@@ -1,0 +1,11 @@
+okay do it also what is the last date to submit and where to submit ?
+
+---
+
+<task-notification>
+<task-id>bjkaw9pv9</task-id>
+<tool-use-id>toolu_019L8NsZAvK1XMceeYxaANff</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-vedmohan-Projects-something/342b5573-3a40-461c-956a-972bd68e5254/tasks/bjkaw9pv9.output</output-file>
+<status>failed</status>
+<summary>Background command "Check for existing MCP config and the neatlogs wizard CLI" failed with exit code 144</summary>
+</task-notification>
