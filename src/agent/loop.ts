@@ -1,8 +1,9 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { execSync, spawnSync } from "node:child_process";
-import { GoogleGenAI, type Content, type Part, type FunctionCall } from "@google/genai";
-import { wrapGoogleGenAI } from "neatlogs/google-genai";
+import OpenAI from "openai";
+import type { ChatCompletionMessageParam, ChatCompletionTool } from "openai/resources/chat/completions";
+import { wrapOpenAI } from "neatlogs/openai";
 import { span, trace } from "neatlogs";
 import { TOOLS, SYSTEM_PROMPT } from "./prompts.js";
 import { newRunState, recordUsage, overBudget, persistState, type RunState } from "./state.js";
@@ -11,9 +12,19 @@ import { readFile, applyEdit } from "../tools/files.js";
 import { gitDiff, gitRevertAll, gitCommitAll } from "../tools/git.js";
 import { findCheatingInDiff } from "../verify.js";
 
-const genai = wrapGoogleGenAI(new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY }));
-const MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+// Groq hosts an OpenAI-compatible Chat Completions API -- reuse the OpenAI
+// SDK (and neatlogs' OpenAI wrapper) pointed at Groq's base URL instead of
+// a separate SDK/integration.
+const client = wrapOpenAI(
+  new OpenAI({ apiKey: process.env.GROQ_API_KEY, baseURL: "https://api.groq.com/openai/v1" })
+);
+const MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-120b";
 const RUNS_DIR = path.resolve(process.cwd(), "runs");
+
+const OPENAI_TOOLS: ChatCompletionTool[] = TOOLS.map((t) => ({
+  type: "function",
+  function: { name: t.name, description: t.description, parameters: t.parameters as Record<string, unknown> },
+}));
 
 /**
  * vitest's default reporter embeds a nondeterministic duration ("1ms" vs
@@ -127,18 +138,16 @@ export async function runAgent(opts: AgentRunOptions): Promise<AgentRunResult> {
     });
     let lastFailureOutput = await reproduceSpan(verboseTestCmd);
 
-    const contents: Content[] = [
+    const messages: ChatCompletionMessageParam[] = [
+      { role: "system", content: SYSTEM_PROMPT },
       {
         role: "user",
-        parts: [
-          {
-            text: `Repo: ${opts.repoDir}\nTest command: ${opts.testCmd}\n\nBaseline summary: ${baselineSummary}\n\nFull failing test output:\n${lastFailureOutput}\n\nFind the root cause and fix it. Start with graph_search.`,
-          },
-        ],
+        content: `Repo: ${opts.repoDir}\nTest command: ${opts.testCmd}\n\nBaseline summary: ${baselineSummary}\n\nFull failing test output:\n${lastFailureOutput}\n\nFind the root cause and fix it. Start with graph_search.`,
       },
     ];
 
     let noToolUseStreak = 0;
+    let lastRunTestsPassed = false;
 
     while (true) {
       state.attempt++;
@@ -156,66 +165,86 @@ export async function runAgent(opts: AgentRunOptions): Promise<AgentRunResult> {
         };
       }
 
-      let response: Awaited<ReturnType<typeof genai.models.generateContent>> | undefined;
+      let response: OpenAI.Chat.Completions.ChatCompletion | undefined;
       let lastApiError: any;
       for (let retry = 0; retry < 4; retry++) {
         try {
-          response = await genai.models.generateContent({
+          response = await client.chat.completions.create({
             model: MODEL,
-            contents,
-            config: {
-              systemInstruction: SYSTEM_PROMPT,
-              tools: [{ functionDeclarations: TOOLS }],
-            },
+            messages,
+            tools: OPENAI_TOOLS,
           });
           break;
         } catch (err: any) {
           lastApiError = err;
-          const retryable = err.status === 503 || err.status === 429 || err.status >= 500;
+          const status = err.status ?? err.response?.status;
+          const retryable = status === 503 || status === 429 || status >= 500;
           if (!retryable || retry === 3) throw err;
           const delayMs = 1000 * 2 ** retry;
-          state.recoveries.push({ attempt: state.attempt, kind: "api_error_backoff", detail: `status=${err.status}, retry ${retry + 1}/4 after ${delayMs}ms` });
+          state.recoveries.push({ attempt: state.attempt, kind: "api_error_backoff", detail: `status=${status}, retry ${retry + 1}/4 after ${delayMs}ms` });
           persistState(state, RUNS_DIR);
           await new Promise((r) => setTimeout(r, delayMs));
         }
       }
       if (!response) throw lastApiError;
 
-      const usage = response.usageMetadata;
-      recordUsage(state, usage?.promptTokenCount ?? 0, usage?.candidatesTokenCount ?? 0);
+      const usage = response.usage;
+      recordUsage(state, usage?.prompt_tokens ?? 0, usage?.completion_tokens ?? 0);
       persistState(state, RUNS_DIR);
 
-      const candidateContent = response.candidates?.[0]?.content;
-      if (!candidateContent) {
-        throw new Error("Gemini returned no candidate content");
+      const choice = response.choices[0];
+      if (!choice?.message) throw new Error("Groq returned no choice/message");
+      messages.push(choice.message);
+
+      const toolCalls = (choice.message.tool_calls ?? []).filter(
+        (c): c is OpenAI.Chat.Completions.ChatCompletionMessageFunctionToolCall => c.type === "function"
+      );
+
+      if (process.env.GREENLIGHT_DEBUG) {
+        console.error(
+          `\n[turn ${state.attempt}] finish_reason=${choice.finish_reason} content=${JSON.stringify((choice.message.content || "").slice(0, 300))} tool_calls=${JSON.stringify((choice.message.tool_calls ?? []).map((c: any) => ({ type: c.type, name: c.function?.name, args: c.function?.arguments?.slice(0, 200) })))}`
+        );
       }
-      contents.push(candidateContent);
 
-      const functionCalls: FunctionCall[] = response.functionCalls ?? [];
+      let finishRequested: { status: "fixed" | "gave_up"; summary: string } | null = null;
+      const toolMessages: ChatCompletionMessageParam[] = [];
 
-      if (functionCalls.length === 0) {
-        noToolUseStreak++;
-        if (noToolUseStreak >= 2) {
-          state.status = "gave_up";
-          persistState(state, RUNS_DIR);
-          activeSpan.setAttribute("outcome", "stalled_no_tool_use");
-          return { status: "gave_up", summary: "Agent stopped calling tools without finishing.", attempts: state.attempt, costUsd: state.costUsd };
+      if (toolCalls.length === 0) {
+        // The model sometimes wraps up with a prose summary instead of
+        // actually calling finish. If the last run_tests already confirmed
+        // PASS and nothing has changed since, don't waste budget nudging --
+        // treat this as an implicit finish (still goes through the same
+        // re-verify + anti-cheat gate below, never trusted blindly).
+        if (lastRunTestsPassed) {
+          finishRequested = { status: "fixed", summary: choice.message.content?.trim() || "Fix verified by run_tests (PASS); agent stopped without explicitly calling finish." };
+        } else {
+          noToolUseStreak++;
+          if (noToolUseStreak >= 2) {
+            state.status = "gave_up";
+            persistState(state, RUNS_DIR);
+            activeSpan.setAttribute("outcome", "stalled_no_tool_use");
+            return { status: "gave_up", summary: "Agent stopped calling tools without finishing.", attempts: state.attempt, costUsd: state.costUsd };
+          }
+          messages.push({ role: "user", content: "Please continue using tools (run_tests or finish) -- don't just describe what you'd do." });
+          continue;
         }
-        contents.push({ role: "user", parts: [{ text: "Please continue using tools (run_tests or finish) -- don't just describe what you'd do." }] });
-        continue;
       }
       noToolUseStreak = 0;
 
-      const responseParts: Part[] = [];
-      let finishRequested: { status: "fixed" | "gave_up"; summary: string } | null = null;
-
-      for (const call of functionCalls) {
-        const name = call.name ?? "";
-        const args = call.args ?? {};
+      for (const call of toolCalls) {
+        const name = call.function.name;
+        let args: any = {};
+        try {
+          args = JSON.parse(call.function.arguments || "{}");
+        } catch {
+          if (process.env.GREENLIGHT_DEBUG) console.error(`\n[tool] ${name}: ERROR malformed JSON args: ${call.function.arguments}`);
+          toolMessages.push({ role: "tool", tool_call_id: call.id, content: "ERROR: arguments were not valid JSON" });
+          continue;
+        }
 
         if (name === "finish") {
           finishRequested = args as { status: "fixed" | "gave_up"; summary: string };
-          responseParts.push({ functionResponse: { name, response: { output: "acknowledged" } } });
+          toolMessages.push({ role: "tool", tool_call_id: call.id, content: "acknowledged" });
           continue;
         }
 
@@ -228,14 +257,19 @@ export async function runAgent(opts: AgentRunOptions): Promise<AgentRunResult> {
           if (process.env.GREENLIGHT_DEBUG) {
             console.error(`\n[tool] ${name}(${JSON.stringify(args)})\n  -> ${result.slice(0, 500)}`);
           }
-          if (name === "run_tests") lastFailureOutput = result;
-          responseParts.push({ functionResponse: { name, response: { output: result } } });
+          if (name === "run_tests") {
+            lastFailureOutput = result;
+            lastRunTestsPassed = /VERDICT: PASS/.test(result);
+          } else if (name === "apply_edit" || name === "revert_last_edit") {
+            lastRunTestsPassed = false; // state changed since the last verdict
+          }
+          toolMessages.push({ role: "tool", tool_call_id: call.id, content: result });
         } catch (err: any) {
           const recoverySpan = span({ kind: "GUARDRAIL", toolName: `recovery:${name}_error` }, async (msg: string) => msg);
           await recoverySpan(err.message);
           state.recoveries.push({ attempt: state.attempt, kind: `${name}_error`, detail: err.message });
           persistState(state, RUNS_DIR);
-          responseParts.push({ functionResponse: { name, response: { error: err.message } } });
+          toolMessages.push({ role: "tool", tool_call_id: call.id, content: `ERROR: ${err.message}` });
         }
       }
 
@@ -263,7 +297,8 @@ export async function runAgent(opts: AgentRunOptions): Promise<AgentRunResult> {
           const reason = cheats.length > 0 ? `Rejected: diff looks like it disables tests instead of fixing code: ${cheats.join("; ")}` : `Rejected: verify did not return PASS: ${verdict.raw}`;
           state.recoveries.push({ attempt: state.attempt, kind: "unverified_finish_rejected", detail: reason });
           persistState(state, RUNS_DIR);
-          contents.push({ role: "user", parts: [...responseParts, { text: `Your claimed fix was rejected: ${reason}\nKeep trying.` }] });
+          messages.push(...toolMessages);
+          messages.push({ role: "user", content: `Your claimed fix was rejected: ${reason}\nKeep trying.` });
           continue;
         }
 
@@ -273,7 +308,7 @@ export async function runAgent(opts: AgentRunOptions): Promise<AgentRunResult> {
         return { status: "gave_up", summary: finishRequested.summary, attempts: state.attempt, costUsd: state.costUsd };
       }
 
-      contents.push({ role: "user", parts: responseParts });
+      messages.push(...toolMessages);
     }
   });
 }

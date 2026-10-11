@@ -15,11 +15,11 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@google/genai": "^2.28.0",
     "@octokit/rest": "^22.0.0",
     "commander": "^14.0.0",
     "dotenv": "^17.0.0",
-    "neatlogs": "latest"
+    "neatlogs": "latest",
+    "openai": "^7.32.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

@@ -1,13 +1,13 @@
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
-// gemini-3.8-flash paid-tier pricing (through 2026-12-31) as of this build
-// (https://ai.google.dev/gemini-api/docs/pricing): $0.75 / MTok input,
-// $3.75 / MTok output. The hackathon runs on the free tier (cost is $0
-// there) -- this estimate is what a run WOULD cost if billed, used for the
-// --max-cost budget and the cfo.ai unit-economics math.
-const INPUT_USD_PER_TOKEN = 0.75 / 1_000_000;
-const OUTPUT_USD_PER_TOKEN = 3.75 / 1_000_000;
+// openai/gpt-oss-120b pricing on Groq as of this build
+// (https://console.groq.com/docs/models): $0.15 / MTok input, $0.60 / MTok
+// output. The hackathon runs on Groq's free tier (cost is $0 there, capped
+// at 1,000 requests/day) -- this estimate is what a run WOULD cost if
+// billed, used for the --max-cost budget and the cfo.ai unit-economics math.
+const INPUT_USD_PER_TOKEN = 0.15 / 1_000_000;
+const OUTPUT_USD_PER_TOKEN = 0.6 / 1_000_000;
 
 export interface RunState {
   runId: string;

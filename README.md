@@ -21,7 +21,7 @@ Every run is traced end-to-end in [neatlogs](https://neatlogs.com).
 ## Stack
 
 - TypeScript / Node.js 20+
-- Google Gemini (`@google/genai`, `gemini-2.5-flash`) for the agent's own LLM calls + tool use, traced via the neatlogs TypeScript SDK (`wrapGoogleGenAI`)
+- Groq (`openai/gpt-oss-120b`, OpenAI-compatible API via the `openai` SDK) for the agent's own LLM calls + tool use, traced via the neatlogs TypeScript SDK (`wrapOpenAI`)
 - [Entire](https://entire.io) for build checkpoints, the `entire-graph` runtime code graph (locate), and `entire graph verify` (adjudicated pass/fail verdicts)
 - [cfo.ai](https://cfo.ai) for the business plan (see `evidence/`)
 

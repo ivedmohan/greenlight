@@ -18,7 +18,7 @@ Hard rules:
 export interface ToolDef {
   name: string;
   description: string;
-  parametersJsonSchema: {
+  parameters: {
     type: "object";
     properties: Record<string, unknown>;
     required: string[];
@@ -30,7 +30,7 @@ export const TOOLS: ToolDef[] = [
     name: "graph_search",
     description:
       "Search the repo's code graph (Entire) for the code most relevant to a plain-language description of a bug or task. Returns ranked candidate fix sites with source, file:line, and a suggested narrow verify command. Use this BEFORE read_file/grep-style exploration.",
-    parametersJsonSchema: {
+    parameters: {
       type: "object",
       properties: {
         query: { type: "string", description: "Plain-language description of the bug, e.g. 'capitalize duplicates the first character'" },
@@ -42,12 +42,12 @@ export const TOOLS: ToolDef[] = [
     name: "graph_explain",
     description:
       "Resolve the declarations of every symbol named in the current failing test output (the error/stack trace). Useful when graph_search alone doesn't pin down the exact function body you need to read.",
-    parametersJsonSchema: { type: "object", properties: {}, required: [] },
+    parameters: { type: "object", properties: {}, required: [] },
   },
   {
     name: "read_file",
     description: "Read a file (or a line range of it) from the repo.",
-    parametersJsonSchema: {
+    parameters: {
       type: "object",
       properties: {
         path: { type: "string", description: "Path relative to the repo root" },
@@ -61,7 +61,7 @@ export const TOOLS: ToolDef[] = [
     name: "apply_edit",
     description:
       "Apply an exact search/replace edit to a file. old_str must appear in the file exactly once, verbatim (including whitespace). Fails if old_str isn't found exactly once -- re-read the file and retry with a corrected old_str.",
-    parametersJsonSchema: {
+    parameters: {
       type: "object",
       properties: {
         path: { type: "string", description: "Path relative to the repo root" },
@@ -75,17 +75,17 @@ export const TOOLS: ToolDef[] = [
     name: "run_tests",
     description:
       "Run the real test suite and get an adjudicated verdict against the pre-edit baseline: which tests are newly passing, which newly failing (regressions), which were already failing before your changes (pre-existing, ignore). Call this after every apply_edit.",
-    parametersJsonSchema: { type: "object", properties: {}, required: [] },
+    parameters: { type: "object", properties: {}, required: [] },
   },
   {
     name: "revert_last_edit",
     description: "Discard all uncommitted changes in the repo, returning it to the baseline (buggy) state. Use this when a hypothesis didn't work out before trying a different one.",
-    parametersJsonSchema: { type: "object", properties: {}, required: [] },
+    parameters: { type: "object", properties: {}, required: [] },
   },
   {
     name: "finish",
     description: "End the run. Call this once run_tests has confirmed a PASS verdict, or once you've exhausted your attempt budget.",
-    parametersJsonSchema: {
+    parameters: {
       type: "object",
       properties: {
         status: { type: "string", enum: ["fixed", "gave_up"] },
