@@ -1,0 +1,41 @@
+check now
+
+---
+
+now it should be there
+
+---
+
+update ?
+
+---
+
+<task-notification>
+<task-id>bq2oa703y</task-id>
+<tool-use-id>toolu_01Hqbn588eM8PPQZY9KffJFA</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-vedmohan-Projects-something/342b5573-3a40-461c-956a-972bd68e5254/tasks/bq2oa703y.output</output-file>
+<status>failed</status>
+<summary>Background command "Test single case to check tracing and quota status" failed with exit code 143</summary>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>b2tjjcq4i</task-id>
+<tool-use-id>toolu_015Dz4Jrs2V5yNQeeH4gp9oF</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-vedmohan-Projects-something/342b5573-3a40-461c-956a-972bd68e5254/tasks/b2tjjcq4i.output</output-file>
+<status>completed</status>
+<summary>Background command "Wait for the quota-check run to finish" completed (exit code 0)</summary>
+</task-notification>
+
+---
+
+what are we even doing with llm model ?
+
+---
+
+update ?
+
+---
+
+update ?
