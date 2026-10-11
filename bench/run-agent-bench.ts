@@ -70,13 +70,33 @@ async function main() {
     console.log(`\n=== ${c.project}/${c.id} (${meta.difficulty}) ===`);
     await materializeCase(c.project, c.id, repoDir, { gitInit: true });
 
-    const result = await runAgent({
-      repoDir,
-      testCmd: "npm test",
-      maxIterations: 8,
-      maxCostUsd: 0.5,
-      runId,
-    });
+    let result: Awaited<ReturnType<typeof runAgent>>;
+    try {
+      result = await runAgent({
+        repoDir,
+        testCmd: "npm test",
+        maxIterations: 8,
+        maxCostUsd: 0.5,
+        runId,
+      });
+    } catch (err: any) {
+      // A single case crashing (e.g. a provider's daily quota exhausted
+      // mid-batch) must not take down the rest of the benchmark -- record
+      // it honestly as "error" and keep going.
+      console.log(`  -> ERROR: ${err.message?.slice(0, 300)}`);
+      results.push({
+        project: c.project,
+        id: c.id,
+        difficulty: meta.difficulty,
+        status: "error",
+        attempts: 0,
+        costUsd: 0,
+        independentlyVerifiedGreen: false,
+        runId,
+        summary: `Crashed: ${err.message?.slice(0, 500)}`,
+      });
+      continue;
+    }
 
     const verifiedGreen = result.status === "fixed" ? independentlyVerify(repoDir) : false;
 

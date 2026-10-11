@@ -13,3 +13,6 @@ build/
 # agent run state (local scratch, not evidence)
 runs/
 *.tsbuildinfo
+
+# Claude Code harness session-local state (not project content)
+.claude/scheduled_tasks.lock

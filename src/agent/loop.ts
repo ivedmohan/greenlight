@@ -53,6 +53,22 @@ function toVerboseTestCmd(repoDir: string, testCmd: string): string {
   return `${testCmd} --reporter=verbose`;
 }
 
+/**
+ * Groq's 429 messages embed how long to wait, e.g. "Please try again in
+ * 13m53.76s" or "Please try again in 850ms". Parse it so we wait exactly
+ * that long instead of guessing with a short exponential schedule --
+ * capped at 20 minutes so a single run can't hang indefinitely.
+ */
+function parseRetryAfterMs(message: string): number | null {
+  const m = message.match(/try again in\s+(?:(\d+)m)?\s*([\d.]+)(ms|s)/i);
+  if (!m) return null;
+  const minutes = m[1] ? parseInt(m[1], 10) : 0;
+  const value = parseFloat(m[2]);
+  const seconds = m[3].toLowerCase() === "ms" ? value / 1000 : value;
+  const totalMs = (minutes * 60 + seconds) * 1000;
+  return Math.min(Math.ceil(totalMs) + 1000, 20 * 60 * 1000);
+}
+
 function ensureGitRepo(repoDir: string): void {
   if (!existsSync(path.join(repoDir, ".git"))) {
     execSync("git init -q", { cwd: repoDir });
@@ -167,7 +183,8 @@ export async function runAgent(opts: AgentRunOptions): Promise<AgentRunResult> {
 
       let response: OpenAI.Chat.Completions.ChatCompletion | undefined;
       let lastApiError: any;
-      for (let retry = 0; retry < 4; retry++) {
+      const MAX_RETRIES = 5;
+      for (let retry = 0; retry < MAX_RETRIES; retry++) {
         try {
           response = await client.chat.completions.create({
             model: MODEL,
@@ -179,9 +196,19 @@ export async function runAgent(opts: AgentRunOptions): Promise<AgentRunResult> {
           lastApiError = err;
           const status = err.status ?? err.response?.status;
           const retryable = status === 503 || status === 429 || status >= 500;
-          if (!retryable || retry === 3) throw err;
-          const delayMs = 1000 * 2 ** retry;
-          state.recoveries.push({ attempt: state.attempt, kind: "api_error_backoff", detail: `status=${status}, retry ${retry + 1}/4 after ${delayMs}ms` });
+          if (!retryable || retry === MAX_RETRIES - 1) throw err;
+
+          // Groq's quota errors carry "try again in Xm Ys" / "Xs" in the
+          // message -- honor that instead of our own short exponential
+          // schedule, which is far too short for a token-per-day limit.
+          const quotaWait = parseRetryAfterMs(err.error?.message || err.message || "");
+          const delayMs = quotaWait ?? Math.min(1000 * 2 ** retry, 20_000);
+
+          state.recoveries.push({
+            attempt: state.attempt,
+            kind: quotaWait ? "api_quota_wait" : "api_error_backoff",
+            detail: `status=${status}, retry ${retry + 1}/${MAX_RETRIES} after ${Math.round(delayMs / 1000)}s: ${(err.error?.message || err.message || "").slice(0, 200)}`,
+          });
           persistState(state, RUNS_DIR);
           await new Promise((r) => setTimeout(r, delayMs));
         }

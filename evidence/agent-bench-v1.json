@@ -1,0 +1,12 @@
+[
+  { "project": "stringkit", "id": "easy-capitalize", "difficulty": "easy", "status": "fixed", "attempts": 5, "costUsd": 0.0028, "independentlyVerifiedGreen": true },
+  { "project": "stringkit", "id": "easy-clamp", "difficulty": "easy", "status": "fixed", "attempts": 5, "costUsd": 0.0026, "independentlyVerifiedGreen": true },
+  { "project": "stringkit", "id": "easy-sum", "difficulty": "easy", "status": "fixed", "attempts": 5, "costUsd": 0.0027, "independentlyVerifiedGreen": true },
+  { "project": "stringkit", "id": "flaky-retry-backoff-explosion", "difficulty": "flaky", "status": "budget_exceeded", "attempts": 8, "costUsd": 0.0039, "independentlyVerifiedGreen": false },
+  { "project": "stringkit", "id": "hard-shared-isplainobject", "difficulty": "hard", "status": "fixed", "attempts": 5, "costUsd": 0.0029, "independentlyVerifiedGreen": true },
+  { "project": "stringkit", "id": "medium-retry-missing-await", "difficulty": "medium", "status": "budget_exceeded", "attempts": 8, "costUsd": 0.0044, "independentlyVerifiedGreen": false },
+  { "project": "stringkit", "id": "medium-slugify-shared-helper", "difficulty": "medium", "status": "fixed", "attempts": 5, "costUsd": 0.0024, "independentlyVerifiedGreen": true },
+  { "project": "tasks-api", "id": "easy-completed-filter", "difficulty": "easy", "status": "fixed", "attempts": 5, "costUsd": 0.0029, "independentlyVerifiedGreen": true },
+  { "project": "tasks-api", "id": "hard-validate-partial-flag-ignored", "difficulty": "hard", "status": "budget_exceeded", "attempts": 8, "costUsd": 0.0048, "independentlyVerifiedGreen": false },
+  { "project": "tasks-api", "id": "medium-update-store-bug", "difficulty": "medium", "status": "blocked_by_quota", "attempts": 0, "costUsd": 0, "independentlyVerifiedGreen": false, "summary": "Not run: Groq free-tier daily token quota (200,000 TPD on openai/gpt-oss-120b) was exhausted mid-batch on this case. Confirmed the quota does not meaningfully refill within normal wait windows (usage kept climbing across waited retries) -- this is a real multi-hour daily cap, not a short rate limit. To re-run: retry after quota reset, or on a fresh Groq org." }
+]
