@@ -1,0 +1,78 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4QCKKEQHNG2R2HBB8GDE0KF",
+  "session_id": "342b5573-3a40-461c-956a-972bd68e5254",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-12T06:25:41.366694Z",
+  "branch": "main",
+  "checkpoints_count": 2,
+  "save_step_count": 2,
+  "files_touched": [],
+  "agent": "Claude Code",
+  "model": "claude-sonnet-5",
+  "turn_id": "38f2cfbc095c",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 1316,
+    "cache_creation_tokens": 2120931,
+    "cache_read_tokens": 269463659,
+    "output_tokens": 358517,
+    "api_call_count": 660
+  },
+  "skill_events_version": 1,
+  "skill_events": [
+    {
+      "id": "claude-skill-toolu_01K99oWuvtdsqX99CEEu4yML",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "artifact-design"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "38f2cfbc095c",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 3620,
+        "end": 3621,
+        "entry_ids": [
+          "0196b83b-f7a1-43f9-b07a-c91a501318be"
+        ],
+        "tool_use_id": "toolu_01K99oWuvtdsqX99CEEu4yML"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_01K99oWuvtdsqX99CEEu4yML"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: artifact-design",
+        "default_collapsed": true
+      }
+    }
+  ],
+  "session_metrics": {
+    "turn_count": 18
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 6,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 6
+      }
+    }
+  ]
+}
