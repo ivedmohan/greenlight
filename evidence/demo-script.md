@@ -2,7 +2,13 @@
 
 No website needed — this is a terminal tool plus three dashboards (neatlogs, Entire/GitHub, cfo.ai). Record your screen through these beats in order; a single take works if you rehearse the tab-switching once.
 
-**Before recording:** open 4 tabs — (1) terminal in the `greenlight` repo, (2) neatlogs trace `273a0a6d6872099b4b84a809031a7241`, (3) github.com/ivedmohan/greenlight, (4) your cfo.ai Decision Dashboard. Have `evidence/` open in an editor too.
+**Before recording, open these 4 tabs (all verified links, click to confirm they load before you hit record):**
+1. Terminal, `cd` into the `greenlight` repo
+2. neatlogs trace (the recovery example): https://app.neatlogs.com/traces/273a0a6d6872099b4b84a809031a7241?orgId=6d5f49e5-c0b3-4460-8dc7-729c8ff6fa6a&projectId=73ddd324-c4e6-48fd-8667-2db6335ae52d
+3. https://github.com/ivedmohan/greenlight
+4. Your cfo.ai Decision Dashboard (app.cfo.ai, the workspace you already built)
+
+Have `evidence/` open in an editor too, for the before/after table.
 
 ---
 
@@ -14,14 +20,13 @@ Show: README.md title + one-line pitch on screen.
 
 ## 0:20–1:10 — A real run, including a real recovery
 
-Switch to the neatlogs trace (tab 2) — `hard-shared-isplainobject`, trace `273a0a6d6872099b4b84a809031a7241`.
+Switch to the neatlogs trace (tab 2). You'll see a clean step list on the left (`greenlight-bench` / 17 steps / 161s) — this is the literal recorded run, nothing staged for the camera. Point your cursor down the list as you narrate:
 
-Walk through the span list in order, narrating:
 1. `graph_index` + `graph_verify_record_baseline` — sets up a baseline on the broken tree (34 passing, 2 failing).
-2. `graph_search` — finds the likely fix site via Entire's code graph, not grep.
-3. **The real recovery moment**: first `read_file({"path":"src/objects.ts"})` — a wrong guess — fails with `ENOENT`. Point this out explicitly: *"this wasn't scripted — the agent guessed wrong, saw the error, and corrected itself on the very next call."*
-4. `read_file({"path":"src/internal/normalize.ts"})` — the correct file.
-5. `apply_edit` → `run_tests` → `entire graph verify` returns **PASS** (NEWLY PASSING: 2, zero regressions) → commit.
+2. `qwen/qwen3.8-27b` (LLM) → `graph_search` (TOOL) — finds the likely fix site via Entire's code graph, not grep.
+3. **The real recovery moment**: the next LLM call is followed by an `anonymous` TOOL span marked **ERROR** in red — that's `read_file({"path":"src/objects.ts"})`, a wrong guess, failing with ENOENT. Click it open to show the error text on screen. Say: *"this wasn't scripted — the agent guessed wrong, saw the error, and corrected itself on the very next call."*
+4. Next LLM call → `read_file` (TOOL, no error this time) — the correct file, `src/internal/normalize.ts`.
+5. `apply_edit` → `run_tests` → the output panel at the bottom shows the final JSON: `"status":"fixed"`, verified PASS, zero regressions, committed.
 
 > "Nothing here was staged — this is the actual trace from a benchmark run."
 

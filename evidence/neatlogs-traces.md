@@ -2,7 +2,12 @@
 
 Project: **Ved's project** (`73ddd324-c4e6-48fd-8667-2db6335ae52d`), model `qwen/qwen3.8-27b`, workflow `greenlight-bench`. Pulled via the neatlogs MCP server (`search_traces`, `get_trace_context`) connected directly to this Claude Code session -- not screenshots, live queries against real ingested data.
 
-Open any trace at: `https://app.neatlogs.com/<org>/<project>/traces/<trace_id>` (exact URL path per the neatlogs dashboard).
+Dashboard: https://app.neatlogs.com/?orgId=6d5f49e5-c0b3-4460-8dc7-729c8ff6fa6a&projectId=73ddd324-c4e6-48fd-8667-2db6335ae52d
+
+Open any trace directly at (verified, not guessed):
+`https://app.neatlogs.com/traces/<trace_id>?orgId=6d5f49e5-c0b3-4460-8dc7-729c8ff6fa6a&projectId=73ddd324-c4e6-48fd-8667-2db6335ae52d`
+
+e.g. the recovery trace: https://app.neatlogs.com/traces/273a0a6d6872099b4b84a809031a7241?orgId=6d5f49e5-c0b3-4460-8dc7-729c8ff6fa6a&projectId=73ddd324-c4e6-48fd-8667-2db6335ae52d
 
 ## v1 benchmark traces (8 of 9 attempted cases; see hackathon.md for why 1 case has no trace)
 
