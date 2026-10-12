@@ -4,6 +4,8 @@
 
 Built for [neatHack](https://neatlogs.com/hackathon) (Oct 10–12, 2026).
 
+**Landing page / instructions UI:** [published artifact](https://claude.ai/artifact/VGxtFXZyXFM27Hhf799BPk) (design system in `DESIGN.md`, NVIDIA-inspired).
+
 ## Status
 
 🚧 Under active development during the hackathon. See [`hackathon.md`](./hackathon.md) for the build log and evidence checklist.
