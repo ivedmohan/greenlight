@@ -1,0 +1,54 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4Q4ETXXAED5D3TRZQ535YED",
+  "session_id": "342b5573-3a40-461c-956a-972bd68e5254",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-12T04:03:17.425933Z",
+  "branch": "main",
+  "checkpoints_count": 4,
+  "files_touched": [
+    "evidence/neatlogs-traces.md",
+    "evidence/unit-economics.md",
+    "hackathon.md"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-sonnet-5",
+  "turn_id": "bd744fb2ef53",
+  "checkpoint_transcript_start": 2677,
+  "transcript_lines_at_start": 2677,
+  "compact_transcript_start": 490,
+  "token_usage": {
+    "input_tokens": 48,
+    "cache_creation_tokens": 580208,
+    "cache_read_tokens": 13906850,
+    "output_tokens": 16348,
+    "api_call_count": 26
+  },
+  "session_metrics": {
+    "turn_count": 9
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-10-12T04:03:17.345207Z",
+    "agent_lines": 89,
+    "agent_removed": 7,
+    "human_added": 41,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 130,
+    "total_lines_changed": 137,
+    "agent_percentage": 70.07299270072993,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 6,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 6
+      }
+    }
+  ]
+}
