@@ -127,7 +127,7 @@ _TBD._
 - [x] Agent improved: before/after neatlogs traces compared -- `evidence/neatlogs-traces.md`, `evidence/agent-bench-v1.json` (gpt-oss-120b 6/9 -> qwen3.8-27b 8/9)
 - [x] Used neatlogs: trace links / screenshots -- `evidence/neatlogs-traces.md` (8 real trace IDs, MCP-queried)
 - [x] Used Entire: checkpoint refs + entire-graph output -- all 6 checkpoint refs pushed and live on GitHub; `evidence/entire-graph-sample.txt`
-- [x] Used cfo.ai: business plan (pricing, costs, revenue, runway) -- real numbers ready in `evidence/unit-economics.md`; plan itself to be built at cfo.ai by the human (see brief §5.3)
+- [x] Used cfo.ai: business plan (pricing, costs, revenue, runway) -- built live at cfo.ai from our real benchmark numbers, summarized in `evidence/cfo-ai-business-plan.md` (pricing: $3/fix + $79/mo subscription; year-one revenue $25.7K-$513.5K across 50/200/1000-repo cases; runway/breakeven analysis included)
 - [x] Recovers from failures: a traced run showing a failure + recovery -- `evidence/neatlogs-traces.md` (ENOENT self-correction, trace `273a0a6d6872099b4b84a809031a7241`)
 - [ ] Built in public: #neatHack post links -- needs human action on X
 - [x] Code written during hackathon: dated commits in a public repo -- https://github.com/ivedmohan/greenlight
