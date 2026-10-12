@@ -112,7 +112,15 @@
 - **Pulled a full trace via `get_trace_context`** for `hard-shared-isplainobject` as a concrete "recovers from failures" example: the agent's first move was `read_file({"path":"src/objects.ts"})` -- a wrong guess -- which failed with `ENOENT`. The error was surfaced back to the model as a tool result, and its very next action was `read_file({"path":"src/internal/normalize.ts"})`, the correct file, leading to the fix. This is genuine, undirected recovery (not scripted), and neatlogs' own automatic detections tagged this trace `Execution Failed` + `Slow LLM Response` without any detection rules configured by us. Trace: `273a0a6d6872099b4b84a809031a7241`.
 - `mcp__neatlogs__triage_list` currently returns no cards (no issues auto-surfaced yet at this volume) -- noted, not a problem.
 
-**Planned next:** Given today's remaining Groq quota is uncertain (shared org-wide cap, last seen near its limit), spend further LLM calls carefully. Priorities for the rest of the day before the 7-11:55 PM IST submission window: write `evidence/unit-economics.md` from the real numbers above (no LLM calls needed), attempt one targeted v2 prompt improvement for the flaky/timeout case specifically (cheap, single-case test), wire the real GitHub issue -> PR flow (M6) if quota allows, then evidence packaging + demo video (M7/M8).
+### 2026-10-12 — M6: Real red-CI -> PR flow, live, on a real repo
+- Created a second public repo, **github.com/ivedmohan/greenlight-demo**: a copy of `stringkit` with the `easy-capitalize` bug pre-applied and a real GitHub Actions workflow (`npm ci && npm test` on push/PR). Confirmed via `gh run watch`: CI genuinely failed on `main` (4 failing tests, real GitHub-hosted runner, not simulated).
+- Hit one real setup snag: the first push was rejected (`refusing to allow an OAuth App to create or update workflow ... without 'workflow' scope`) -- `gh auth refresh -s workflow` fixed it (human re-auth step).
+- Cloned the repo fresh (not a bench-harness copy), checked out a `greenlight/fix-capitalize` branch, and ran the **unmodified** `greenlight run --repo <path>` CLI against it -- no special-casing for "real repo" vs "bench case", it's the same code path.
+- **Result: fixed in 5 attempts, $0.0166, in one real-time take.** Found the bug via `graph_search`, read the file, patched `s.slice(0)` -> `s.slice(1)`, verified PASS via `entire graph verify`, committed, and this time called `finish` explicitly (no auto-finish fallback needed).
+- Pushed the branch and opened a real PR via `gh pr create`: **github.com/ivedmohan/greenlight-demo/pull/1**. Its own CI check ran and **passed** -- confirmed via `gh pr checks --watch`.
+- This is the strongest evidence artifact for the demo: a genuinely red GitHub Actions run, fixed autonomously, closed out with a real PR whose own CI is green. Nothing here is a bench-harness simulation.
+
+**Planned next:** Record the demo video (script in `evidence/demo-script.md`, update beat 2 to walk the greenlight-demo PR live instead of/alongside the neatlogs trace), then submit before the 7-11:55 PM IST window closes. Only remaining checklist item is the #neatHack build-in-public posts (human action).
 
 ## Demo
 
@@ -131,3 +139,4 @@ _TBD._
 - [x] Recovers from failures: a traced run showing a failure + recovery -- `evidence/neatlogs-traces.md` (ENOENT self-correction, trace `273a0a6d6872099b4b84a809031a7241`)
 - [ ] Built in public: #neatHack post links -- needs human action on X
 - [x] Code written during hackathon: dated commits in a public repo -- https://github.com/ivedmohan/greenlight
+- [x] **Bonus, real end-to-end demo:** https://github.com/ivedmohan/greenlight-demo (red CI) -> https://github.com/ivedmohan/greenlight-demo/pull/1 (real PR, green CI), not a bench-harness simulation
