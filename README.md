@@ -11,7 +11,6 @@ proves the fix against a baseline, and commits it, ready to ship as a pull reque
 ![Node](https://img.shields.io/badge/Node-%E2%89%A520-5fa04e?logo=node.js&logoColor=white)
 ![Traced with neatlogs](https://img.shields.io/badge/traced%20with-neatlogs-76b900)
 ![Code graph by Entire](https://img.shields.io/badge/code%20graph-Entire-111111)
-![neatHack 2026](https://img.shields.io/badge/neatHack-2026-ef9100)
 
 [**Live demo repo**](https://github.com/ivedmohan/greenlight-demo) · [**The real PR it produced**](https://github.com/ivedmohan/greenlight-demo/pull/1) · [**Build log**](./hackathon.md) · [**Evidence**](./evidence)
 
@@ -221,7 +220,3 @@ evidence/           traces, benchmark results, unit economics, business plan
 docs/               README media
 hackathon.md        dated build log + submission checklist
 ```
-
-<div align="center">
-<sub>Built in 48 hours for <a href="https://neatlogs.com/hackathon">neatHack 2026</a>.</sub>
-</div>
