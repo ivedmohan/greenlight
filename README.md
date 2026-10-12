@@ -4,11 +4,11 @@
 
 Built for [neatHack](https://neatlogs.com/hackathon) (Oct 10–12, 2026).
 
-**Landing page / instructions UI:** [published artifact](https://claude.ai/artifact/VGxtFXZyXFM27Hhf799BPk) (design system in `DESIGN.md`, NVIDIA-inspired).
+**Landing page / instructions UI:** [published artifact](https://claude.ai/artifact/VGxtFXZyXFM27Hhf799BPk).
 
 ## Status
 
-🚧 Under active development during the hackathon. See [`hackathon.md`](./hackathon.md) for the build log and evidence checklist.
+Working end to end: a real red GitHub Actions run on [greenlight-demo](https://github.com/ivedmohan/greenlight-demo) was fixed autonomously and closed out with [a real PR](https://github.com/ivedmohan/greenlight-demo/pull/1) whose own CI passed. On the 10-case benchmark it fixes 8 of 9 attempted cases at ~$0.0165 per fix. See [`hackathon.md`](./hackathon.md) for the build log and evidence checklist.
 
 ## What it does
 
@@ -31,7 +31,7 @@ Every run is traced end-to-end in [neatlogs](https://neatlogs.com).
 
 ```bash
 npm install
-cp .env.example .env   # fill in GOOGLE_API_KEY, NEATLOGS_API_KEY, GITHUB_TOKEN
+cp .env.example .env   # fill in GROQ_API_KEY, NEATLOGS_API_KEY, NEATLOGS_PROJECT_ID, GITHUB_TOKEN
 npm run dev -- run --repo <path-to-repo> --test "npm test"
 # or, to try it against a seeded bench case:
 npm run dev -- run --case stringkit/easy-capitalize

@@ -120,7 +120,7 @@
 - Pushed the branch and opened a real PR via `gh pr create`: **github.com/ivedmohan/greenlight-demo/pull/1**. Its own CI check ran and **passed** -- confirmed via `gh pr checks --watch`.
 - This is the strongest evidence artifact for the demo: a genuinely red GitHub Actions run, fixed autonomously, closed out with a real PR whose own CI is green. Nothing here is a bench-harness simulation.
 
-**Planned next:** Record the demo video (script in `evidence/demo-script.md`, update beat 2 to walk the greenlight-demo PR live instead of/alongside the neatlogs trace), then submit before the 7-11:55 PM IST window closes. Only remaining checklist item is the #neatHack build-in-public posts (human action).
+**Planned next:** Submit before the 7-11:55 PM IST window closes. Only remaining checklist item is the #neatHack build-in-public posts (human action).
 
 ## Demo
 
